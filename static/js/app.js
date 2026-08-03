@@ -198,12 +198,14 @@ async function listenOnce({ onInterim, onFinal, onError, silenceTimeoutMs = 4000
 
 // ---------- INTRO: spoken the moment the site is visited ----------
 
+// ---------- INTRO & STARTUP ----------
+
 async function playIntro() {
   if (introStarted) return;
   introStarted = true;
 
   const introStatus = el("intro-status");
-  introStatus.textContent = "Snow is speaking...";
+  if (introStatus) introStatus.textContent = "Snow is speaking...";
 
   await speak("Hi, I am Snow, your AI interviewer.");
 
@@ -212,25 +214,25 @@ async function playIntro() {
 
   await speak("Please share your resume with me, and let's begin the interview.");
 
-  introStatus.textContent = "";
+  if (introStatus) introStatus.textContent = "";
   showStage("stage-upload");
 }
 
-window.addEventListener("load", () => {
-  playIntro();
-});
+window.addEventListener("DOMContentLoaded", () => {
+  const kickoff = async () => {
+    document.removeEventListener("click", kickoff);
+    document.removeEventListener("keydown", kickoff);
+    await playIntro();
+  };
 
-// Fallback: some browsers block speech until the user has interacted with
-// the page at least once. If the intro hasn't started shortly after load,
-// start it on the first click/keypress anywhere on the page.
-setTimeout(() => {
-  if (!introStarted) {
-    const kickoff = () => playIntro();
-    document.addEventListener("click", kickoff, { once: true });
-    document.addEventListener("keydown", kickoff, { once: true });
-    el("intro-status").textContent = "Tap anywhere to begin.";
+  document.addEventListener("click", kickoff, { once: true });
+  document.addEventListener("keydown", kickoff, { once: true });
+
+  const introStatus = el("intro-status");
+  if (introStatus) {
+    introStatus.textContent = "Click or tap anywhere on the page to begin.";
   }
-}, 1200);
+});
 
 // ---------- STAGE 1: UPLOAD + NAME ----------
 
