@@ -14,7 +14,8 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
 # Railway sets this automatically once a volume is attached; falls back to
 # BASE_DIR for local dev so nothing changes when running on your machine.
-DATA_DIR = Path(os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", str(Path(__file__).resolve().parent.parent)))
+_persistent_path = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH") or os.environ.get("RENDER_DISK_PATH")
+DATA_DIR = Path(_persistent_path) if _persistent_path else Path(__file__).resolve().parent.parent
 
 INSTALLED_APPS = [
     "django.contrib.admin",
